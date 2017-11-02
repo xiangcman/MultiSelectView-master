@@ -13,10 +13,12 @@ import com.library.multiselct.MultiSelectView;
  * Created by xiangcheng on 17/10/31.
  */
 
-public class TimePopWindow extends PopupWindow {
+public class TimePopWindow extends PopupWindow implements MultiSelectView.OnAllSelect {
     private View conentView;
+    private Context context;
 
     public TimePopWindow(final Activity context) {
+        this.context = context;
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         conentView = inflater.inflate(R.layout.layout_pop, null);
@@ -26,10 +28,15 @@ public class TimePopWindow extends PopupWindow {
         this.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
         this.setFocusable(true);
         this.setOutsideTouchable(true);
-        // 刷新状态
         this.update();
         this.setAnimationStyle(R.style.mypopwindow_anim_style);
         final MultiSelectView multiSelectView = (MultiSelectView) conentView.findViewById(R.id.select_view);
+        multiSelectView.setOnAllSelect(this);
         multiSelectView.validateList(Constant.initData());
+    }
+
+    @Override
+    public void select(String text) {
+        ((MainActivity) context).setAddress(text);
     }
 }

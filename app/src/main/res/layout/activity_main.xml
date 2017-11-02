@@ -12,6 +12,13 @@
         android:layout_height="wrap_content"
         android:text="弹出地址选择器" />
 
+    <TextView
+        android:id="@+id/show_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/select"
+        android:visibility="gone" />
+
     <View
         android:id="@+id/back"
         android:layout_width="match_parent"

@@ -70,6 +70,9 @@ public class MultiSelectView extends ViewGroup implements MultiSelectItem.Scroll
         ((MultiSelectItem) getChildAt(1)).resetList(this.selectBeanList2);
         this.selectBeanList3 = this.selectBeanList2.get(0).childs;
         ((MultiSelectItem) getChildAt(2)).resetList(this.selectBeanList3);
+        if (onAllSelect != null) {
+            onAllSelect.select(this.selectBeanList1.get(0).name + " " + this.selectBeanList2.get(0).name + " " + this.selectBeanList3.get(0).name);
+        }
     }
 
     @Override
@@ -80,12 +83,31 @@ public class MultiSelectView extends ViewGroup implements MultiSelectItem.Scroll
             this.selectBeanList3 = this.selectBeanList2.get(0).childs;
             ((MultiSelectItem) getChildAt(1)).resetList(this.selectBeanList2);
             ((MultiSelectItem) getChildAt(2)).resetList(this.selectBeanList3);
+            if (onAllSelect != null) {
+                onAllSelect.select(this.selectBeanList1.get(index).name + " " + this.selectBeanList2.get(0).name + " " + this.selectBeanList3.get(0).name);
+            }
         } else if (multiSelectItem == getChildAt(1)) {
             this.selectBeanList3 = this.selectBeanList2.get(index).childs;
             ((MultiSelectItem) getChildAt(2)).resetList(this.selectBeanList3);
+            if (onAllSelect != null) {
+                onAllSelect.select(this.selectBeanList1.get(((MultiSelectItem) getChildAt(0)).getCurrentIndex()).name + " " + this.selectBeanList2.get(index).name + " " + this.selectBeanList3.get(0).name);
+            }
         } else {
-
+            if (onAllSelect != null) {
+                onAllSelect.select(this.selectBeanList1.get(((MultiSelectItem) getChildAt(0)).getCurrentIndex()).name + " " + this.selectBeanList2.get(((MultiSelectItem) getChildAt(1)).getCurrentIndex()).name + " " + this.selectBeanList3.get(index).name);
+            }
         }
+    }
+
+    private OnAllSelect onAllSelect;
+
+    public void setOnAllSelect(OnAllSelect onAllSelect) {
+        this.onAllSelect = onAllSelect;
+    }
+
+    //选中内容回调
+    public interface OnAllSelect {
+        void select(String text);
     }
 
 }
