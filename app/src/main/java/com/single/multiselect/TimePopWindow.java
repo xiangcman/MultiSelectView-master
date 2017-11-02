@@ -13,7 +13,7 @@ import com.library.multiselct.MultiSelectView;
  * Created by xiangcheng on 17/10/31.
  */
 
-public class TimePopWindow extends PopupWindow implements MultiSelectView.OnAllSelect {
+public class TimePopWindow extends PopupWindow {
     private View conentView;
     private Context context;
 
@@ -31,12 +31,17 @@ public class TimePopWindow extends PopupWindow implements MultiSelectView.OnAllS
         this.update();
         this.setAnimationStyle(R.style.mypopwindow_anim_style);
         final MultiSelectView multiSelectView = (MultiSelectView) conentView.findViewById(R.id.select_view);
-        multiSelectView.setOnAllSelect(this);
+        multiSelectView.setOnAllSelect(new MultiSelectView.OnAllSelect() {
+            @Override
+            public void select(String text) {
+                ((MainActivity) context).setAddress(text);
+            }
+        });
         multiSelectView.validateList(Constant.initData());
     }
 
-    @Override
-    public void select(String text) {
-        ((MainActivity) context).setAddress(text);
-    }
+//    @Override
+//    public void select(String text) {
+//        ((MainActivity) context).setAddress(text);
+//    }
 }

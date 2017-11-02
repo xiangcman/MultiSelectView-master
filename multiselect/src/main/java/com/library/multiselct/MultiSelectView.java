@@ -34,7 +34,6 @@ public class MultiSelectView extends ViewGroup implements MultiSelectItem.Scroll
             MultiSelectItem multiSelectItem = new MultiSelectItem(getContext());
             multiSelectItem.setScrollListener(this);
             addView(multiSelectItem);
-
         }
     }
 

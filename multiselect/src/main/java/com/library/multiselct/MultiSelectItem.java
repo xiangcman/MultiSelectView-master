@@ -29,7 +29,7 @@ public class MultiSelectItem extends View {
     private static final int lineColor = Color.parseColor("#FF3300");
     private Paint linePaint;
     private Paint textPaint;
-    //初始的偏移量
+    //当前需要便宜的位置
     private float offset;
     //每一行间隔的距离
     private float diffY;
@@ -64,7 +64,7 @@ public class MultiSelectItem extends View {
 
     private float minFlingVelocity;
     //用于区别选中和未选中的item的索引
-    private int currentChange;
+//    private int currentChange;
 
     public MultiSelectItem(Context context) {
         super(context);
@@ -106,7 +106,7 @@ public class MultiSelectItem extends View {
 
         otherTextSize = minTextSize;
         otherAlpha = minAlpha;
-        currentChange = currentIndex;
+//        currentChange = currentIndex;
     }
 
     public void resetList(List<? extends SelectBean> selectBeanList) {
@@ -115,7 +115,7 @@ public class MultiSelectItem extends View {
             this.selectBeanList.addAll(selectBeanList);
             offset = diffY;
             currentIndex = 0;
-            currentChange = currentIndex;
+//            currentChange = currentIndex;
             maxOffset = -diffY * (this.selectBeanList.size() - 2);
             refreshList();
         } else {
@@ -138,12 +138,10 @@ public class MultiSelectItem extends View {
         for (int i = 0; i < selectBeanList.size(); i++) {
             SelectBean selectBean = selectBeanList.get(i);
             String name = selectBean.name;
-            //越界的item就不需要去绘制了
-            if (offset + i * diffY > height || (offset + i * diffY) + diffY < 0 || ((offset + i * diffY == height) && (offset + i * diffY) + diffY > height) ||
-                    (((offset + i * diffY) + diffY == 0) && offset + i * diffY < 0)) {
+            if (offset + i * diffY >= height || (offset + i * diffY) + diffY <= 0) {
                 continue;
             } else {
-                if (i == currentChange) {
+                if (i == currentIndex) {
                     textPaint.setTextSize(currentTextSize);
                     textPaint.setAlpha((int) (255 * currentAlpha));
                 } else {
@@ -197,31 +195,33 @@ public class MultiSelectItem extends View {
 
         //大于这个值才会被认为是fling
         if (Math.abs(yVelocity) > minFlingVelocity) {
+            //如果是当前位置在maxOffset处了，并且继续往上滑动则不处理或者 当前位置在minOffset处了，并且继续往下滑动则不处理
             if ((offset == maxOffset && yVelocity < 0) || (offset == minOffset && yVelocity > 0)) {
                 return;
             }
             int startY = Math.round(offset);
+            //结束位置通过速度来判断了
             endY = Math.round(yVelocity / 10) + startY;
+            //结束位置也是需要进行限制的
             if (endY <= maxOffset) {
                 endY = maxOffset;
             }
             if (endY >= minOffset) {
                 endY = minOffset;
             }
+            //和move的时候计算currentIndex是一样的
             if (endY > 0) {
                 currentIndex = Math.round(Math.abs(endY - diffY) * 1.0f / diffY);
             } else {
                 currentIndex = Math.round((Math.abs(endY) + diffY) * 1.0f / diffY);
             }
 
-            if (endY - diffY > 0) {
-                endY = diffY + currentIndex * diffY;
-            } else {
-                endY = diffY - currentIndex * diffY;
-            }
+            //endY的位置是需要diffY成整数倍的，并且是与currentIndex成反比的
+            endY = diffY - currentIndex * diffY;
             mScroller.startScroll(0, startY, 0, (int) (endY - startY));
             invalidate();
         } else {
+            //如果滑动速度不是很大，不需要fling的
             releaseMoveTo();
         }
     }
@@ -234,12 +234,7 @@ public class MultiSelectItem extends View {
             currentIndex = Math.round((Math.abs(offset) + diffY) * 1.0f / diffY);
         }
         int startY = Math.round(offset);
-        endY = 0;
-        if (offset - diffY > 0) {
-            endY = diffY + currentIndex * diffY;
-        } else {
-            endY = diffY - currentIndex * diffY;
-        }
+        endY = diffY - currentIndex * diffY;
         mScroller.startScroll(0, startY, 0, (int) (endY - startY));
         invalidate();
     }
@@ -262,13 +257,17 @@ public class MultiSelectItem extends View {
     private void scrollTochangeChilds() {
         if (Math.abs(offset) % diffY <= maxDeviation) {
             if (offset > 0) {
+                //如果offset在view的起点下面，计算的时候需要-diffY
                 currentIndex = Math.round(Math.abs(offset - diffY) * 1.0f / diffY);
             } else {
+                //如果offset在view的起点上面，计算的时候需要+diffY
                 currentIndex = Math.round((Math.abs(offset) + diffY) * 1.0f / diffY);
             }
-            currentChange = currentIndex;
+            //当前被选中的放大
             currentTextSize = maxTextSize;
+            //当前被选中的alpha值最大
             currentAlpha = maxAlpha;
+            //接口回调，给MultiSelectView刷新数据
             if (mScrollListener != null) {
                 mScrollListener.end(this, currentIndex);
             }
